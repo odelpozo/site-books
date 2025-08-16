@@ -130,3 +130,8 @@ stores/library.ts        # CRUD biblioteca y helpers
 - [ ] Editar/Eliminar
 - [ ] README de front/back con variables y cURL
 - [ ] (Opcional) Capturas del flujo
+
+
+
+https://site-books-pi.vercel.app/
+https://api-books-production.up.railway.app/api/books/last-search

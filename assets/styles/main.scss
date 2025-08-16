@@ -58,3 +58,21 @@ body {
 .mt8 {
     margin-top: 8px;
 }
+
+.toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: #f7f7f7;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-select {
+    display: block;
+    width: 100%;
+    text-align: center;
+}

@@ -34,12 +34,31 @@ export const useLibraryStore = defineStore('library', {
             await this.list()
             return r
         },
-        async update(id: string, patch: Partial<Book>) {
-            const { public: { apiBase } } = useRuntimeConfig()
-            const r = await $fetch<Book>(`${apiBase}/books/my-library/${id}`, { method: 'PUT', body: patch })
-            await this.list()
-            return r
+        // async update(id: string, patch: Partial<Book>) {
+        //     const { public: { apiBase } } = useRuntimeConfig()
+        //     const r = await $fetch<Book>(`${apiBase}/books/my-library/${id}`, { method: 'PUT', body: patch })
+        //     await this.list()
+        //     return r
+        // },
+        async update(
+            id: string,
+            payload: { review?: string; rating?: number | null; coverBase64?: string }
+        ) {
+            const apiBase = useRuntimeConfig().public.apiBase;
+            const updated = await $fetch(`${apiBase}/books/my-library/${id}`, {
+                method: "PUT",
+                body: payload
+            });
+            // @ts-ignore
+            if (Array.isArray(this.items)) {
+                // @ts-ignore
+                const i = this.items.findIndex((b: any) => (b._id || b.id) === id);
+                if (i !== -1) this.items[i] = updated as any;
+            }
+
+            return updated;
         },
+
         async remove(id: string) {
             const { public: { apiBase } } = useRuntimeConfig()
             await $fetch(`${apiBase}/books/my-library/${id}`, { method: 'DELETE' })
