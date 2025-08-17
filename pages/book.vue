@@ -49,6 +49,8 @@ const onSave = async () => {
   const f = coverEl.value?.files?.[0] || null
   if (f) {
     body.coverBase64 = await toBase64(f)
+  }else if (cover.value) {
+    body.coverUrl = cover.value
   }
 
   await lib.create(body)
