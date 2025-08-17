@@ -34,12 +34,7 @@ export const useLibraryStore = defineStore('library', {
             await this.list()
             return r
         },
-        // async update(id: string, patch: Partial<Book>) {
-        //     const { public: { apiBase } } = useRuntimeConfig()
-        //     const r = await $fetch<Book>(`${apiBase}/books/my-library/${id}`, { method: 'PUT', body: patch })
-        //     await this.list()
-        //     return r
-        // },
+
         async update(
             id: string,
             payload: { review?: string; rating?: number | null; coverBase64?: string }

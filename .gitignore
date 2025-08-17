@@ -10,7 +10,6 @@ build
 .nuxt
 .output
 
-
 .env
 .env.*
 !.env.example

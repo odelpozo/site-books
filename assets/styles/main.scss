@@ -76,3 +76,13 @@ body {
     width: 100%;
     text-align: center;
 }
+
+.library__title {
+    margin: 0 auto;
+    /* centra el título */
+    text-align: center;
+}
+
+.flex-spacer {
+    flex: 1;
+}

@@ -1,58 +1,68 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useLibraryStore, type Book } from '../stores/library'  
+import { useLibraryStore, type Book } from '../stores/library'
 import { useRuntimeConfig } from 'nuxt/app'
 
 const lib = useLibraryStore()
 onMounted(() => lib.list())
 
+// edición
 const editReview = ref('')
-const editRating = ref<number|null>(null)
-const editing = ref<Book|null>(null)
+const editRating = ref<number | null>(null)
+const editing = ref<Book | null>(null)
 
- 
-const editCoverFile = ref<File|null>(null)
- 
+// FILE INPUT para la portada en edición
+const editCoverEl = ref<HTMLInputElement | null>(null)
+
 function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
     const r = new FileReader()
     r.onload = () => resolve(r.result as string)
     r.onerror = reject
-    r.readAsDataURL(file)  
+    r.readAsDataURL(file)
   })
 }
 
 const doFilter = () => lib.list()
+
 const startEdit = (b: Book) => {
   editing.value = b
   editReview.value = b.review || ''
   editRating.value = b.rating ?? null
-  editCoverFile.value = null    
+  if (editCoverEl.value) editCoverEl.value.value = ''
 }
-const saveEdit = async () => {
-  const id = editing.value && (editing.value._id as string);
-  if (!id) { alert('No hay id del libro'); return; }
 
-  const payload: { review?: string; rating?: number|null; coverBase64?: string } = {
+const saveEdit = async () => {
+  const id = editing.value && (editing.value._id as string)
+  if (!id) { alert('No hay id del libro'); return }
+
+  const payload: { review?: string; rating?: number | null; coverBase64?: string } = {
     review: editReview.value,
     rating: editRating.value
-  };
-
-  if (editCoverFile.value) {
-    payload.coverBase64 = await fileToBase64(editCoverFile.value);
   }
 
-  await lib.update(id, payload);
-  editCoverFile.value = null;
-  editing.value = null;
+  const file = editCoverEl.value?.files?.[0] || null
+  if (file) {
+    payload.coverBase64 = await fileToBase64(file)
+  }
+
+  await lib.update(id, payload)
+  await lib.list()              
+  editing.value = null
 }
 
 const del = async (b: Book) => {
-  if (b._id && confirm('¿Eliminar permanentemente?')) await lib.remove(b._id)
+  if (b._id && confirm('¿Eliminar permanentemente?')) {
+    await lib.remove(b._id)
+    await lib.list()
+  }
 }
 
 const { public: { apiBase } } = useRuntimeConfig()
-const coverUrl = (id: string) => `${apiBase}/books/library/front-cover/${id}`
+
+// anti-cache para ver la nueva portada tras editar
+const coverUrl = (id: string, v?: string | number) =>
+  `${apiBase}/books/library/front-cover/${id}?v=${v ?? ''}`
 
 const onImgError = (e: Event) => {
   const img = e.target as HTMLImageElement | null
@@ -62,10 +72,12 @@ const onImgError = (e: Event) => {
 
 <template>
   <div class="container">
-    <div class="row library__toolbar">
-      <h2>Mi biblioteca</h2>
-      <NuxtLink class="btn" to="/">Buscar libros</NuxtLink>
-    </div>
+  
+  <div class="row toolbar">
+    <div class="flex-spacer"></div>
+    <h2 class="library__title">Mi biblioteca</h2>
+    <NuxtLink class="btn" to="/">Buscar libros</NuxtLink>
+  </div>
 
     <div class="card">
       <div class="row">
@@ -83,7 +95,7 @@ const onImgError = (e: Event) => {
     <div class="grid mt16">
       <div class="card" v-for="b in lib.items" :key="b._id">
         <img
-          :src="coverUrl(b._id as string)"
+          :src="coverUrl(b._id as string, b.updatedAt || b.createdAt || Date.now())"
           @error="onImgError"
           style="width:100%; height:180px; object-fit:cover; border-radius:6px"
         />
@@ -97,18 +109,16 @@ const onImgError = (e: Event) => {
       </div>
     </div>
 
- 
-    <div v-if="editing" style="position:fixed; inset:0; background:#0006; display:flex; align-items:center; justify-content:center;">
+    <!-- Modal de edición -->
+    <div
+      v-if="editing"
+      style="position:fixed; inset:0; background:#0006; display:flex; align-items:center; justify-content:center;"
+    >
       <div class="card" style="width:520px; background:#fff;">
         <h3>Editar</h3>
 
- 
-        <label class="mt8">Portada</label>
-        <input
-          type="file"
-          accept="image/*"
-          @change="(e: Event) => editCoverFile.value = ((e.target as HTMLInputElement).files?.[0] || null)"
-        />
+        <label class="mt8">Portada (opcional)</label>
+        <input ref="editCoverEl" type="file" accept="image/*" />
 
         <label class="mt16">Review</label>
         <textarea class="textarea" v-model="editReview" :maxlength="500" rows="5"></textarea>
