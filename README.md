@@ -111,7 +111,7 @@ stores/library.ts        # CRUD biblioteca y helpers
 1. Importa el repo en Vercel.
 2. Variables de entorno (Production/Preview):
    - `NUXT_PUBLIC_API_BASE=https://books-api.up.railway.app/api`
-3. Deploy. Abre la URL pública y prueba el flujo completo.
+3. Deploy. Abre la URL pública y prueba el flujo completo. en https://site-books-pi.vercel.app/
 
 ---
 
@@ -133,5 +133,3 @@ stores/library.ts        # CRUD biblioteca y helpers
 
 
 
-https://site-books-pi.vercel.app/
-https://api-books-production.up.railway.app/api/books/last-search
