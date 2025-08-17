@@ -39,19 +39,22 @@ export const useLibraryStore = defineStore('library', {
             id: string,
             payload: { review?: string; rating?: number | null; coverBase64?: string }
         ) {
-            const apiBase = useRuntimeConfig().public.apiBase;
-            const updated = await $fetch(`${apiBase}/books/my-library/${id}`, {
-                method: "PUT",
+            const apiBase = useRuntimeConfig().public.apiBase
+
+            const updated = await $fetch<any>(`${apiBase}/books/my-library/${id}`, {
+                method: 'PUT',
                 body: payload
-            });
-            // @ts-ignore
-            if (Array.isArray(this.items)) {
-                // @ts-ignore
-                const i = this.items.findIndex((b: any) => (b._id || b.id) === id);
-                if (i !== -1) this.items[i] = updated as any;
+            })
+
+            const i = Array.isArray(this.items)
+                ? this.items.findIndex((b: any) => (b._id || b.id) === id)
+                : -1
+
+            if (i !== -1) {
+                this.items.splice(i, 1, updated)
             }
 
-            return updated;
+            return updated
         },
 
         async remove(id: string) {
